@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+    db:
+        image: mysql:latest
+        environment:
+            MYSQL_ROOT_PASSWORD: root  # Hasło dla użytkownika root
+            MYSQL_DATABASE: laravel
+        ports:
+            - "3306:3306"
+        volumes:
+            - mysql_data:/var/lib/mysql
+
+    php:
+        build:
+            context: .
+            target: php
+            args:
+                - APP_ENV=local
+        environment:
+            - APP_ENV=local
+            - CONTAINER_ROLE=app
+        working_dir: /var/www
+        volumes:
+            - ./:/var/www
+        ports:
+            - '8000:8000'
+        depends_on:
+            - db
+            - phpmyadmin
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        environment:
+            PMA_HOST: db
+            PMA_USER: root
+            PMA_PASSWORD: root
+        ports:
+            - "8080:80"
+
+volumes:
+    mysql_data: ~
